@@ -247,6 +247,9 @@ public class KuduMetadata
     @Override
     public void createTable(ConnectorSession session, ConnectorTableMetadata tableMetadata, boolean ignoreExisting)
     {
+        if (tableMetadata.getColumns().stream().anyMatch(column -> column.getComment() != null)) {
+            throw new TrinoException(NOT_SUPPORTED, "This connector does not support creating tables with column comment");
+        }
         clientSession.createTable(tableMetadata, ignoreExisting);
     }
 

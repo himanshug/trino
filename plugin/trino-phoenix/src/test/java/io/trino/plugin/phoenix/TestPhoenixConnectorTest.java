@@ -71,6 +71,9 @@ public class TestPhoenixConnectorTest
             case SUPPORTS_AGGREGATION_PUSHDOWN:
                 return false;
 
+            case SUPPORTS_CREATE_TABLE_WITH_COLUMN_COMMENT:
+                return false;
+
             case SUPPORTS_COMMENT_ON_TABLE:
             case SUPPORTS_COMMENT_ON_COLUMN:
             case SUPPORTS_ADD_COLUMN_WITH_COMMENT:

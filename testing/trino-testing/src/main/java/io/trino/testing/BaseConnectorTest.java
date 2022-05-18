@@ -82,6 +82,7 @@ import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_COMMENT_ON_TABL
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_MATERIALIZED_VIEW;
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_SCHEMA;
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_TABLE;
+import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_TABLE_WITH_COLUMN_COMMENT;
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_TABLE_WITH_DATA;
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_CREATE_VIEW;
 import static io.trino.testing.TestingConnectorBehavior.SUPPORTS_DELETE;
@@ -1889,6 +1890,23 @@ public abstract class BaseConnectorTest
 
         assertUpdate("DROP TABLE " + tableNameLike);
         assertFalse(getQueryRunner().tableExists(getSession(), tableNameLike));
+    }
+
+    @Test
+    public void testCreateTableWithColumnComment()
+    {
+        skipTestUnless(hasBehavior(SUPPORTS_CREATE_TABLE));
+
+        String tableName = "test_create_" + randomTableSuffix();
+        if (!hasBehavior(SUPPORTS_CREATE_TABLE_WITH_COLUMN_COMMENT)) {
+            assertQueryFails("CREATE TABLE " + tableName + " (a bigint COMMENT 'test comment')", "This connector does not support creating tables with column comment");
+            return;
+        }
+
+        assertUpdate("CREATE TABLE " + tableName + " (a bigint COMMENT 'test comment')");
+        assertEquals(getColumnComment(tableName, "a"), "test comment");
+
+        assertUpdate("DROP TABLE " + tableName);
     }
 
     @Test

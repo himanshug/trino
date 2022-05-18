@@ -71,6 +71,7 @@ public abstract class BaseSqlServerConnectorTest
             case SUPPORTS_JOIN_PUSHDOWN_WITH_DISTINCT_FROM:
                 return false;
 
+            case SUPPORTS_CREATE_TABLE_WITH_COLUMN_COMMENT:
             case SUPPORTS_COMMENT_ON_TABLE:
             case SUPPORTS_COMMENT_ON_COLUMN:
                 return false;
