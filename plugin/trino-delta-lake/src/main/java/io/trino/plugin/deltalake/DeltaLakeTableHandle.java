@@ -245,6 +245,12 @@ public class DeltaLakeTableHandle
     }
 
     @JsonProperty
+    public Optional<String> getComment()
+    {
+        return metadataEntry.map(MetadataEntry::getDescription);
+    }
+
+    @JsonProperty
     public String getLocation()
     {
         return location;
