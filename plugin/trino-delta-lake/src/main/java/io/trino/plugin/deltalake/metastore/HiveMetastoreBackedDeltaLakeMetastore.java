@@ -230,7 +230,8 @@ public class HiveMetastoreBackedDeltaLakeMetastore
                 .map(columnMeta -> new DeltaLakeColumnHandle(
                         columnMeta.getName(),
                         columnMeta.getType(),
-                        metadata.getCanonicalPartitionColumns().contains(columnMeta.getName()) ? PARTITION_KEY : REGULAR))
+                        metadata.getCanonicalPartitionColumns().contains(columnMeta.getName()) ? PARTITION_KEY : REGULAR,
+                        Optional.ofNullable(columnMeta.getComment())))
                 .collect(toImmutableList());
 
         Map<DeltaLakeColumnHandle, Double> nullCounts = new HashMap<>();

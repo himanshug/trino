@@ -2137,6 +2137,7 @@ public class DeltaLakeMetadata
                 .setName(column.getName())
                 .setType(column.getType())
                 .setHidden(column.getColumnType() == SYNTHESIZED)
+                .setComment(column.getComment())
                 .build();
     }
 
@@ -2245,6 +2246,6 @@ public class DeltaLakeMetadata
     private static DeltaLakeColumnHandle toColumnHandle(ColumnMetadata column, Collection<String> partitionColumns)
     {
         boolean isPartitionKey = partitionColumns.stream().anyMatch(partition -> partition.equalsIgnoreCase(column.getName()));
-        return new DeltaLakeColumnHandle(column.getName(), column.getType(), isPartitionKey ? PARTITION_KEY : REGULAR);
+        return new DeltaLakeColumnHandle(column.getName(), column.getType(), isPartitionKey ? PARTITION_KEY : REGULAR, Optional.ofNullable(column.getComment()));
     }
 }

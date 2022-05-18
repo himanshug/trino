@@ -51,16 +51,28 @@ public class DeltaLakeColumnHandle
     private final String name;
     private final Type type;
     private final DeltaLakeColumnType columnType;
+    private final Optional<String> comment;
+
+    @Deprecated
+    public DeltaLakeColumnHandle(
+            String name,
+            Type type,
+            DeltaLakeColumnType columnType)
+    {
+        this(name, type, columnType, Optional.empty());
+    }
 
     @JsonCreator
     public DeltaLakeColumnHandle(
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("columnType") DeltaLakeColumnType columnType)
+            @JsonProperty("columnType") DeltaLakeColumnType columnType,
+            @JsonProperty("comment") Optional<String> comment)
     {
         this.name = requireNonNull(name, "name is null");
         this.type = requireNonNull(type, "type is null");
         this.columnType = requireNonNull(columnType, "columnType is null");
+        this.comment = requireNonNull(comment, "comment is null");
     }
 
     @JsonProperty
@@ -81,6 +93,12 @@ public class DeltaLakeColumnHandle
         return columnType;
     }
 
+    @JsonProperty
+    public Optional<String> getComment()
+    {
+        return comment;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -93,7 +111,8 @@ public class DeltaLakeColumnHandle
         DeltaLakeColumnHandle other = (DeltaLakeColumnHandle) obj;
         return Objects.equals(this.name, other.name) &&
                 Objects.equals(this.type, other.type) &&
-                this.columnType == other.columnType;
+                this.columnType == other.columnType &&
+                Objects.equals(this.comment, other.comment);
     }
 
     public long getRetainedSizeInBytes()
@@ -105,7 +124,7 @@ public class DeltaLakeColumnHandle
     @Override
     public int hashCode()
     {
-        return Objects.hash(name, type, columnType);
+        return Objects.hash(name, type, columnType, comment);
     }
 
     @Override
@@ -123,21 +142,21 @@ public class DeltaLakeColumnHandle
                 type,
                 Optional.empty(),
                 columnType.toHiveColumnType(),
-                Optional.empty());
+                comment);
     }
 
     public static DeltaLakeColumnHandle pathColumnHandle()
     {
-        return new DeltaLakeColumnHandle(PATH_COLUMN_NAME, PATH_TYPE, SYNTHESIZED);
+        return new DeltaLakeColumnHandle(PATH_COLUMN_NAME, PATH_TYPE, SYNTHESIZED, Optional.empty());
     }
 
     public static DeltaLakeColumnHandle fileSizeColumnHandle()
     {
-        return new DeltaLakeColumnHandle(FILE_SIZE_COLUMN_NAME, FILE_SIZE_TYPE, SYNTHESIZED);
+        return new DeltaLakeColumnHandle(FILE_SIZE_COLUMN_NAME, FILE_SIZE_TYPE, SYNTHESIZED, Optional.empty());
     }
 
     public static DeltaLakeColumnHandle fileModifiedTimeColumnHandle()
     {
-        return new DeltaLakeColumnHandle(FILE_MODIFIED_TIME_COLUMN_NAME, FILE_MODIFIED_TIME_TYPE, SYNTHESIZED);
+        return new DeltaLakeColumnHandle(FILE_MODIFIED_TIME_COLUMN_NAME, FILE_MODIFIED_TIME_TYPE, SYNTHESIZED, Optional.empty());
     }
 }

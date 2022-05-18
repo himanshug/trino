@@ -90,7 +90,7 @@ public final class DeltaLakeSchemaSupport
         }
         return schema.stream()
                 .filter(entry -> canonicalPartitionColumns.contains(entry.getName()))
-                .map(entry -> new DeltaLakeColumnHandle(entry.getName(), entry.getType(), PARTITION_KEY))
+                .map(entry -> new DeltaLakeColumnHandle(entry.getName(), entry.getType(), PARTITION_KEY, Optional.ofNullable(entry.getComment())))
                 .collect(toImmutableList());
     }
 
@@ -108,17 +108,20 @@ public final class DeltaLakeSchemaSupport
     {
         ImmutableMap.Builder<String, Object> schema = ImmutableMap.builder();
 
-        schema.put("fields", columns.stream().map(column -> serializeStructField(column.getName(), column.getType())).collect(toImmutableList()));
+        schema.put("fields", columns.stream().map(column -> serializeStructField(column.getName(), column.getType(), column.getComment())).collect(toImmutableList()));
         schema.put("type", "struct");
 
         return schema.buildOrThrow();
     }
 
-    private static Map<String, Object> serializeStructField(String name, Type type)
+    private static Map<String, Object> serializeStructField(String name, Type type, Optional<String> comment)
     {
         ImmutableMap.Builder<String, Object> fieldContents = ImmutableMap.builder();
 
-        fieldContents.put("metadata", ImmutableMap.of());
+        ImmutableMap.Builder<String, Object> metadata = ImmutableMap.builder();
+        comment.ifPresent(c -> metadata.put("comment", c));
+
+        fieldContents.put("metadata", metadata.buildOrThrow());
         fieldContents.put("name", name);
         fieldContents.put("nullable", true); // TODO: Is column nullability configurable in Trino?
         fieldContents.put("type", serializeColumnType(type));
@@ -168,7 +171,7 @@ public final class DeltaLakeSchemaSupport
         ImmutableMap.Builder<String, Object> fields = ImmutableMap.builder();
 
         fields.put("type", "struct");
-        fields.put("fields", rowType.getFields().stream().map(field -> serializeStructField(field.getName().orElse(null), field.getType())).collect(toImmutableList()));
+        fields.put("fields", rowType.getFields().stream().map(field -> serializeStructField(field.getName().orElse(null), field.getType(), Optional.empty())).collect(toImmutableList()));
 
         return fields.buildOrThrow();
     }
@@ -276,6 +279,7 @@ public final class DeltaLakeSchemaSupport
                 .setName(fieldName)
                 .setType(buildType(typeManager, typeNode))
                 .setNullable(nullable)
+                .setComment(getComment(node))
                 .build();
     }
 
@@ -363,5 +367,18 @@ public final class DeltaLakeSchemaSupport
     private static Optional<Location> getLocation(JsonProcessingException e)
     {
         return Optional.ofNullable(e.getLocation()).map(location -> new Location(location.getLineNr(), location.getColumnNr()));
+    }
+
+    private static Optional<String> getComment(JsonNode node)
+    {
+        JsonNode metadata = node.get("metadata");
+        if (metadata == null) {
+            return Optional.empty();
+        }
+        JsonNode comment = metadata.get("comment");
+        if (comment == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(comment.asText());
     }
 }

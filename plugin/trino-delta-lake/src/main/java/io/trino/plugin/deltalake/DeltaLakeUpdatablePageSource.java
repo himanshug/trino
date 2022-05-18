@@ -150,7 +150,7 @@ public class DeltaLakeUpdatablePageSource
 
         List<ColumnMetadata> columnMetadata = extractSchema(tableHandle.getMetadataEntry(), typeManager);
         List<DeltaLakeColumnHandle> allColumns = columnMetadata.stream()
-                .map(metadata -> new DeltaLakeColumnHandle(metadata.getName(), metadata.getType(), partitionKeys.containsKey(metadata.getName()) ? PARTITION_KEY : REGULAR))
+                .map(metadata -> new DeltaLakeColumnHandle(metadata.getName(), metadata.getType(), partitionKeys.containsKey(metadata.getName()) ? PARTITION_KEY : REGULAR, Optional.ofNullable(metadata.getComment())))
                 .collect(toImmutableList());
         this.allDataColumns = allColumns.stream()
                 .filter(columnHandle -> columnHandle.getColumnType() == REGULAR)
@@ -611,7 +611,7 @@ public class DeltaLakeUpdatablePageSource
             partitionValues[i] = nativeValueToBlock(
                     columnMetadata.getType(),
                     deserializePartitionValue(
-                            new DeltaLakeColumnHandle(columnMetadata.getName(), columnMetadata.getType(), PARTITION_KEY),
+                            new DeltaLakeColumnHandle(columnMetadata.getName(), columnMetadata.getType(), PARTITION_KEY, Optional.ofNullable(columnMetadata.getComment())),
                             partitionKeys.get(columnMetadata.getName())));
         }
         return createPartitionValues(
