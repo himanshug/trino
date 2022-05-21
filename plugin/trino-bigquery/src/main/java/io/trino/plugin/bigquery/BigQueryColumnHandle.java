@@ -20,6 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
+import io.trino.spi.connector.ColumnSchema;
 import org.openjdk.jol.info.ClassLayout;
 
 import java.util.List;
@@ -148,6 +149,14 @@ public class BigQueryColumnHandle
                 .setComment(Optional.ofNullable(description))
                 .setNullable(mode == Field.Mode.NULLABLE)
                 .setHidden(hidden)
+                .build();
+    }
+
+    public ColumnSchema getColumnSchema()
+    {
+        return ColumnSchema.builder()
+                .setName(name)
+                .setType(getTrinoType())
                 .build();
     }
 
