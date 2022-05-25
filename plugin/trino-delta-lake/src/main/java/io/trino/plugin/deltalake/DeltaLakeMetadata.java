@@ -938,7 +938,8 @@ public class DeltaLakeMetadata
                     ADD_COLUMN_OPERATION,
                     session,
                     nodeVersion,
-                    nodeId);
+                    nodeId,
+                    handle.getComment());
             transactionLogWriter.flush();
         }
         catch (Exception e) {
