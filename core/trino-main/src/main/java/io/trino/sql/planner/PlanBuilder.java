@@ -80,7 +80,9 @@ class PlanBuilder
 
     public Symbol translate(Expression expression)
     {
-        return Symbol.from(translations.rewrite(expression));
+        // on two lines, so that we can have debugger breakpoint
+        Expression ex = translations.rewrite(expression);
+        return Symbol.from(ex);
     }
 
     public Expression rewrite(Expression expression)

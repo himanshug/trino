@@ -1176,6 +1176,14 @@ public class TestLogicalPlanner
     }
 
     @Test
+    public void testMyQuery()
+    {
+        assertPlan("SELECT name, count(*) FROM nation GROUP BY name", null);
+//        assertPlan("SELECT count(*) FROM nation", null);
+//        assertDistributedPlan("SELECT count(*) FROM nation", null);
+    }
+
+    @Test
     public void testOffset()
     {
         assertPlan(

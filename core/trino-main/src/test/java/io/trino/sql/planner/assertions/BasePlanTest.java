@@ -29,11 +29,13 @@ import io.trino.sql.planner.iterative.rule.RemoveRedundantIdentityProjections;
 import io.trino.sql.planner.optimizations.PlanOptimizer;
 import io.trino.sql.planner.optimizations.PruneUnreferencedOutputs;
 import io.trino.sql.planner.optimizations.UnaliasSymbolReferences;
+import io.trino.sql.planner.planprinter.PlanPrinter;
 import io.trino.testing.LocalQueryRunner;
 import org.intellij.lang.annotations.Language;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -135,9 +137,13 @@ public class BasePlanTest
 
     protected void assertPlan(String sql, LogicalPlanner.Stage stage, PlanMatchPattern pattern, List<PlanOptimizer> optimizers)
     {
+        // Himanshu: just print plans
         queryRunner.inTransaction(transactionSession -> {
-            Plan actualPlan = queryRunner.createPlan(transactionSession, sql, optimizers, stage, WarningCollector.NOOP);
-            PlanAssert.assertPlan(transactionSession, queryRunner.getMetadata(), queryRunner.getStatsCalculator(), actualPlan, pattern);
+            Plan plan = queryRunner.createPlan(transactionSession, sql, optimizers, stage, WarningCollector.NOOP);
+//            Plan plan = queryRunner.createPlan(transactionSession, sql, Collections.EMPTY_LIST, stage, WarningCollector.NOOP);
+            System.out.println(PlanPrinter.textLogicalPlan(plan.getRoot(), plan.getTypes(), queryRunner.getMetadata(), plan.getStatsAndCosts(), transactionSession, 0, false));
+            System.out.println(PlanPrinter.graphvizLogicalPlan(plan.getRoot(), plan.getTypes()));
+            //PlanAssert.assertPlan(transactionSession, queryRunner.getMetadata(), queryRunner.getStatsCalculator(), actualPlan, pattern);
             return null;
         });
     }
@@ -169,8 +175,10 @@ public class BasePlanTest
     protected void assertPlanWithSession(@Language("SQL") String sql, Session session, boolean forceSingleNode, PlanMatchPattern pattern)
     {
         queryRunner.inTransaction(session, transactionSession -> {
-            Plan actualPlan = queryRunner.createPlan(transactionSession, sql, OPTIMIZED_AND_VALIDATED, forceSingleNode, WarningCollector.NOOP);
-            PlanAssert.assertPlan(transactionSession, queryRunner.getMetadata(), queryRunner.getStatsCalculator(), actualPlan, pattern);
+            Plan plan = queryRunner.createPlan(transactionSession, sql, OPTIMIZED_AND_VALIDATED, forceSingleNode, WarningCollector.NOOP);
+            System.out.println(PlanPrinter.textLogicalPlan(plan.getRoot(), plan.getTypes(), queryRunner.getMetadata(), plan.getStatsAndCosts(), transactionSession, 0, false));
+            System.out.println(PlanPrinter.graphvizLogicalPlan(plan.getRoot(), plan.getTypes()));
+            //PlanAssert.assertPlan(transactionSession, queryRunner.getMetadata(), queryRunner.getStatsCalculator(), actualPlan, pattern);
             return null;
         });
     }

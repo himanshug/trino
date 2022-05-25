@@ -54,7 +54,7 @@ public class TestLocalQueries
         // local queries run directly against the generator
         localQueryRunner.createCatalog(
                 defaultSession.getCatalog().get(),
-                new TpchConnectorFactory(1),
+                new TpchConnectorFactory(3),
                 ImmutableMap.of());
 
         localQueryRunner.getMetadata().addFunctions(CUSTOM_FUNCTIONS);
@@ -116,5 +116,12 @@ public class TestLocalQueries
                 "SELECT json_format(CAST(try(transform_values(m, (k, v) -> k / v)) AS json)) " +
                         "FROM (VALUES map(ARRAY[1, 2], ARRAY[0, 0]),  map(ARRAY[28], ARRAY[2]), map(ARRAY[18], ARRAY[2]), map(ARRAY[4, 5], ARRAY[1, 0]),  map(ARRAY[12], ARRAY[3])) AS t(m)",
                 "VALUES NULL, '{\"28\":14}', '{\"18\":9}', NULL, '{\"12\":4}'");
+    }
+
+    @Test
+    public void testIt()
+    {
+        ((LocalQueryRunner) getQueryRunner()).printPlan();
+        System.out.println(getQueryRunner().execute(getSession(), "SELECT count(*) FROM nation"));
     }
 }

@@ -245,6 +245,7 @@ public class TestSqlParser
     @Test
     public void testPossibleExponentialBacktracking()
     {
+        Expression exp = createExpression("count_0");
         createExpression("(((((((((((((((((((((((((((true)))))))))))))))))))))))))))");
     }
 

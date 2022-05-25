@@ -183,6 +183,7 @@ import org.weakref.jmx.testing.TestingMBeanServer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -899,6 +900,7 @@ public class LocalQueryRunner
                 dataDefinitionTask);
         Analyzer analyzer = new Analyzer(session, metadata, sqlParser, groupProvider, accessControl, Optional.of(queryExplainer), preparedQuery.getParameters(), parameterExtractor(preparedQuery.getStatement(), preparedQuery.getParameters()), warningCollector, statsCalculator);
 
+        optimizers = Collections.EMPTY_LIST;
         LogicalPlanner logicalPlanner = new LogicalPlanner(
                 session,
                 optimizers,
@@ -913,7 +915,10 @@ public class LocalQueryRunner
 
         Analysis analysis = analyzer.analyze(preparedQuery.getStatement());
         // make LocalQueryRunner always compute plan statistics for test purposes
-        return logicalPlanner.plan(analysis, stage);
+
+        Plan plan = logicalPlanner.plan(analysis, stage);
+        System.out.println(PlanPrinter.textLogicalPlan(plan.getRoot(), plan.getTypes(), metadata, plan.getStatsAndCosts(), session, 0, false));
+        return plan;
     }
 
     private static List<Split> getNextBatch(SplitSource splitSource)

@@ -225,7 +225,9 @@ class TranslationMap
                         rewritten.isDistinct(),
                         rewritten.getNullTreatment(),
                         rewritten.getArguments());
-                return coerceIfNecessary(node, rewritten);
+                Expression retuls = coerceIfNecessary(node, rewritten);
+                return retuls;
+//                return coerceIfNecessary(node, rewritten);
             }
 
             @Override

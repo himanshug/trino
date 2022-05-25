@@ -176,6 +176,12 @@ public class TestAnalyzer
     private Metadata metadata;
 
     @Test
+    public void testMyQuery()
+    {
+        assertFails("SELECT * FROM numbers");
+    }
+
+    @Test
     public void testTooManyArguments()
     {
         assertFails("SELECT greatest(" + Joiner.on(", ").join(nCopies(128, "rand()")) + ")")
