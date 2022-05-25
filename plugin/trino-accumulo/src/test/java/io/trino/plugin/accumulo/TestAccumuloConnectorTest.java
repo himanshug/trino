@@ -100,10 +100,14 @@ public class TestAccumuloConnectorTest
     public void testCreateTableWithColumnComment()
     {
         // TODO Avoid setting hard-coded column comment
+        // Accumulo connector ignores specified comment and sets column comments as
+        // "Accumulo row ID" for the first column when "row_id" table property isn't specified
+        // "Accumulo column %s:%s. Indexed: boolean" for other columns
         String tableName = "test_create_" + randomTableSuffix();
+        assertUpdate("CREATE TABLE " + tableName + " (a bigint COMMENT 'test comment a', b bigint COMMENT 'test comment b')");
 
-        assertUpdate("CREATE TABLE " + tableName + " (a bigint COMMENT 'test comment')");
         assertEquals(getColumnComment(tableName, "a"), "Accumulo row ID");
+        assertEquals(getColumnComment(tableName, "b"), "Accumulo column b:b. Indexed: false");
 
         assertUpdate("DROP TABLE " + tableName);
     }
