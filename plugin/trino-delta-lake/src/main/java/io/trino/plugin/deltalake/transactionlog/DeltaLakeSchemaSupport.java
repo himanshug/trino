@@ -371,14 +371,8 @@ public final class DeltaLakeSchemaSupport
 
     private static Optional<String> getComment(JsonNode node)
     {
-        JsonNode metadata = node.get("metadata");
-        if (metadata == null) {
-            return Optional.empty();
-        }
-        JsonNode comment = metadata.get("comment");
-        if (comment == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(comment.asText());
+        return Optional.ofNullable(node.get("metadata"))
+                .map(metadata -> metadata.get("comment"))
+                .map(JsonNode::asText);
     }
 }
